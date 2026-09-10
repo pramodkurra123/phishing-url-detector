@@ -11,7 +11,6 @@ app.secret_key = secrets.token_hex(32)
 
 model = joblib.load("phishing_model.pkl")
 
-
 def create_database():
     conn = sqlite3.connect("scan_history.db")
     cursor = conn.cursor()
@@ -26,6 +25,13 @@ def create_database():
             scan_time TEXT
         )
     """)
+
+    # Add session_id if the old table already exists
+    cursor.execute("PRAGMA table_info(scans)")
+    columns = [column[1] for column in cursor.fetchall()]
+
+    if "session_id" not in columns:
+        cursor.execute("ALTER TABLE scans ADD COLUMN session_id TEXT")
 
     conn.commit()
     conn.close()
