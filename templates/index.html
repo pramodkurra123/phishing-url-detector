@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Phishing URL Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🔐 Phishing URL Detection System</h1>
+
+    <p>Enter a website URL to check whether it may be phishing.</p>
+
+    <div class="scanner">
+        <input
+            type="text"
+            id="urlInput"
+            placeholder="https://example.com"
+        >
+
+        <button onclick="scanURL()">Scan URL</button>
+    </div>
+
+    <div id="loading"></div>
+
+    <div id="result"></div>
+
+    <h2>Recent Scan History</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>URL</th>
+                <th>Result</th>
+                <th>Confidence</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+
+        <tbody id="history"></tbody>
+    </table>
+
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>
