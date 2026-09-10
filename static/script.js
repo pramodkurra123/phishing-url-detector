@@ -75,27 +75,34 @@ async function scanURL() {
 
 async function loadHistory() {
 
-    const response = await fetch("/history");
+    try {
 
-    const data = await response.json();
+        const response = await fetch("/history");
 
-    const history = document.getElementById("history");
+        const data = await response.json();
 
-    history.innerHTML = "";
+        const history = document.getElementById("history");
 
-    data.forEach(function(item) {
+        history.innerHTML = "";
 
-        const row = document.createElement("tr");
+        data.forEach(function(item) {
 
-        row.innerHTML = `
-            <td>${item.url}</td>
-            <td>${item.result}</td>
-            <td>${item.confidence}%</td>
-            <td>${item.time}</td>
-        `;
+            const row = document.createElement("tr");
 
-        history.appendChild(row);
-    });
+            row.innerHTML = `
+                <td>${item.url}</td>
+                <td>${item.result}</td>
+                <td>${item.confidence}%</td>
+                <td>${item.time}</td>
+            `;
+
+            history.appendChild(row);
+        });
+
+    } catch (error) {
+
+        console.log("Unable to load history.");
+    }
 }
 
 
