@@ -1,10 +1,13 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session
 import joblib
 import sqlite3
+import secrets
 from datetime import datetime
 from url_features import extract_features, analyze_url
 
 app = Flask(__name__)
+
+app.secret_key = secrets.token_hex(32)
 
 model = joblib.load("phishing_model.pkl")
 
@@ -16,6 +19,7 @@ def create_database():
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS scans (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT,
             url TEXT,
             result TEXT,
             confidence REAL,
@@ -27,15 +31,25 @@ def create_database():
     conn.close()
 
 
+def get_session_id():
+    if "user_session" not in session:
+        session["user_session"] = secrets.token_hex(16)
+
+    return session["user_session"]
+
+
 def save_scan(url, result, confidence):
     conn = sqlite3.connect("scan_history.db")
     cursor = conn.cursor()
 
+    session_id = get_session_id()
+
     cursor.execute("""
         INSERT INTO scans
-        (url, result, confidence, scan_time)
-        VALUES (?, ?, ?, ?)
+        (session_id, url, result, confidence, scan_time)
+        VALUES (?, ?, ?, ?, ?)
     """, (
+        session_id,
         url,
         result,
         confidence,
@@ -92,12 +106,15 @@ def history():
     conn = sqlite3.connect("scan_history.db")
     cursor = conn.cursor()
 
+    session_id = get_session_id()
+
     cursor.execute("""
         SELECT url, result, confidence, scan_time
         FROM scans
+        WHERE session_id = ?
         ORDER BY id DESC
         LIMIT 20
-    """)
+    """, (session_id,))
 
     rows = cursor.fetchall()
     conn.close()
